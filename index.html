@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Delivery Map Pro Cloud</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body{font-family:Arial;margin:0;background:#f4f4f4;color:#000;}
+.dark{background:#111;color:#fff;}
+.container{padding:15px;}
+input,select,button{padding:8px;margin:5px;width:95%;}
+button{background:#222;color:#fff;border:none;cursor:pointer;}
+.dark button{background:#444;}
+#map{height:380px;}
+.card{background:#fff;padding:10px;margin:10px 0;border-radius:8px;}
+.dark .card{background:#222;}
+.hidden{display:none;}
+.topbar{background:#000;color:#fff;padding:10px;text-align:center;}
+.smallbtn{width:auto;padding:6px 10px;margin:3px;}
+.success{color:green;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div class="topbar">Delivery Map Pro (Cloud)</div>
+
+<div class="container">
+
+<h3>Add / Update Delivery</h3>
+
+<input type="text" id="mobile" placeholder="Mobile Number">
+<input type="text" id="address" placeholder="Full Address">
+
+<select id="status">
+<option>Pending</option>
+<option>Delivered</option>
+<option>Returned</option>
+</select>
+
+<input type="text" id="note" placeholder="Note">
+
+<button onclick="saveData()">Save / Update</button>
+<button onclick="deleteData()">Delete</button>
+<button onclick="detectGPS()">Auto Detect GPS</button>
+
+<div id="message"></div>
+
+<hr>
+
+<h3>Search Single</h3>
+<input type="text" id="searchMobile" placeholder="Enter Mobile">
+<button onclick="searchSingle()">Search</button>
+
+<hr>
+
+<h3>Multiple Search (comma separated)</h3>
+<input type="text" id="multiMobile" placeholder="017xx,018xx,019xx">
+<button onclick="searchMultiple()">Search Multiple</button>
+
+<div id="result"></div>
+
+</div>
+
+<div id="map"></div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, getDocs, collection } 
+from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyA82YWF574aCnkYdwN0airAcFl-_M21sHM",
+authDomain: "delivery-map-pro.firebaseapp.com",
+projectId: "delivery-map-pro",
+storageBucket: "delivery-map-pro.firebasestorage.app",
+messagingSenderId: "544868009171",
+appId: "1:544868009171:web:005b3e95248eac940b8026",
+measurementId: "G-2KCHX7B8VR"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let map=L.map('map').setView([23.8103,90.4125],12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+let currentMarker;
+let destinationMarkers=[];
+let userLat,userLng;
+
+navigator.geolocation.getCurrentPosition(pos=>{
+userLat=pos.coords.latitude;
+userLng=pos.coords.longitude;
+currentMarker=L.marker([userLat,userLng]).addTo(map)
+.bindPopup("Your Location").openPopup();
+map.setView([userLat,userLng],14);
+});
+
+map.on('click',e=>{
+if(currentMarker) map.removeLayer(currentMarker);
+currentMarker=L.marker(e.latlng).addTo(map);
+});
+
+async function saveData(){
+let m=mobile.value.trim();
+let a=address.value.trim();
+if(!m||!a||!currentMarker){alert("Complete all fields!");return;}
+let latlng=currentMarker.getLatLng();
+
+await setDoc(doc(db,"deliveries",m),{
+address:a,
+status:status.value,
+note:note.value,
+lat:latlng.lat,
+lng:latlng.lng,
+timestamp:Date.now()
+});
+
+message.innerHTML="<div class='success'>Successfully Saved in Cloud ✅</div>";
+}
+
+async function deleteData(){
+let m=mobile.value.trim();
+if(!m) return;
+await deleteDoc(doc(db,"deliveries",m));
+alert("Deleted from Cloud");
+}
+
+async function searchSingle(){
+let m=searchMobile.value.trim();
+let snap=await getDoc(doc(db,"deliveries",m));
+if(!snap.exists()){result.innerHTML="No Data";return;}
+let d=snap.data();
+
+map.setView([d.lat,d.lng],15);
+clearMarkers();
+let marker=L.marker([d.lat,d.lng]).addTo(map);
+destinationMarkers.push(marker);
+
+result.innerHTML=`<div class='card'>
+<b>Address:</b> ${d.address}<br>
+<b>Status:</b> ${d.status}<br>
+<b>Note:</b> ${d.note}<br>
+<button onclick="goRoute(${d.lat},${d.lng})">Go</button>
+</div>`;
+}
+
+async function searchMultiple(){
+let numbers=multiMobile.value.split(",");
+clearMarkers();
+
+let all=[];
+for(let num of numbers){
+num=num.trim();
+if(!num) continue;
+let snap=await getDoc(doc(db,"deliveries",num));
+if(snap.exists()){
+let d=snap.data();
+all.push({mobile:num,...d});
+}
+}
+
+if(all.length==0){result.innerHTML="No Data";return;}
+
+if(userLat){
+all.sort((a,b)=>distance(userLat,userLng,a.lat,a.lng)-
+distance(userLat,userLng,b.lat,b.lng));
+}
+
+let html="";
+all.forEach((d,i)=>{
+let marker=L.marker([d.lat,d.lng]).addTo(map)
+.bindPopup((i+1)+". "+d.address);
+destinationMarkers.push(marker);
+
+html+=`<div class='card'>
+<b>${i+1}. ${d.mobile}</b><br>
+${d.address}<br>
+<button onclick="goRoute(${d.lat},${d.lng})">Go Now</button>
+</div>`;
+});
+
+result.innerHTML=html;
+map.fitBounds(destinationMarkers.map(m=>m.getLatLng()));
+}
+
+function goRoute(lat,lng){
+window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
+}
+
+function clearMarkers(){
+destinationMarkers.forEach(m=>map.removeLayer(m));
+destinationMarkers=[];
+}
+
+function detectGPS(){
+navigator.geolocation.getCurrentPosition(pos=>{
+if(currentMarker) map.removeLayer(currentMarker);
+currentMarker=L.marker([pos.coords.latitude,pos.coords.longitude]).addTo(map);
+map.setView([pos.coords.latitude,pos.coords.longitude],15);
+});
+}
+
+function distance(lat1,lon1,lat2,lon2){
+let R=6371;
+let dLat=(lat2-lat1)*Math.PI/180;
+let dLon=(lon2-lon1)*Math.PI/180;
+let a=Math.sin(dLat/2)**2+
+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+Math.sin(dLon/2)**2;
+return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+}
+
+window.saveData=saveData;
+window.deleteData=deleteData;
+window.searchSingle=searchSingle;
+window.searchMultiple=searchMultiple;
+window.goRoute=goRoute;
+window.detectGPS=detectGPS;
+
+</script>
+</body>
+</html>
