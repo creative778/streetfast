@@ -2,71 +2,72 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Delivery Map Pro Ultimate</title>
+<title>Delivery Map Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#f2f2f2;}
-.topbar{background:#111;color:#fff;padding:15px;text-align:center;font-size:18px;}
-.container{padding:15px;max-width:1000px;margin:auto;}
-.card{background:#fff;padding:15px;margin:10px 0;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-input,select,button{padding:10px;margin:5px 0;width:100%;border-radius:6px;border:1px solid #ccc;}
-button{background:#111;color:#fff;border:none;cursor:pointer;}
+body{margin:0;font-family:Segoe UI,Arial;background:#f5f7fb;}
+.topbar{background:#111;color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;}
+.container{max-width:1100px;margin:auto;padding:20px;}
+.card{background:#fff;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+input,select{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:6px;font-size:14px;}
+button{padding:10px 15px;border:none;border-radius:6px;background:#111;color:#fff;cursor:pointer;margin-right:5px;}
 button:hover{background:#333;}
-#map{height:400px;margin-top:10px;border-radius:8px;}
-.success{color:green;font-weight:bold;}
-.error{color:red;font-weight:bold;}
+#map{height:420px;border-radius:10px;}
+.success{color:green;font-weight:600;}
+.error{color:red;font-weight:600;}
 .hidden{display:none;}
-.smallbtn{width:auto;padding:6px 12px;margin-right:5px;}
+.flex{display:flex;gap:10px;flex-wrap:wrap;}
+.flex button{flex:1;}
 </style>
 </head>
 <body>
 
-<div class="topbar">🚚 Delivery Map Pro Ultimate</div>
+<div class="topbar">🚚 Delivery Map Pro</div>
 
 <div class="container">
 
-<div id="authBox" class="card">
-<h3>Login / Register</h3>
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Password">
-<button onclick="register()">Register</button>
-<button onclick="login()">Login</button>
+<div id="authCard" class="card">
+<h3>Login</h3>
+<input type="email" id="loginEmail" placeholder="Email">
+<input type="password" id="loginPassword" placeholder="Password">
+<div class="flex">
+<button id="loginBtn">Login</button>
+<button id="registerBtn">Register</button>
+</div>
 <div id="authMsg"></div>
 </div>
 
-<div id="mainPanel" class="hidden">
+<div id="app" class="hidden">
 
 <div class="card">
-<button onclick="logout()" class="smallbtn">Logout</button>
+<div class="flex">
+<button id="logoutBtn">Logout</button>
+</div>
 <h3>Add / Update Delivery</h3>
-<input type="text" id="mobile" placeholder="Mobile Number">
-<input type="text" id="address" placeholder="Full Address">
-<select id="status">
-<option>Pending</option>
-<option>Delivered</option>
-<option>Returned</option>
+<input type="text" id="mobileInput" placeholder="Mobile Number">
+<input type="text" id="addressInput" placeholder="Full Address">
+<select id="statusSelect">
+<option value="Pending">Pending</option>
+<option value="Delivered">Delivered</option>
+<option value="Returned">Returned</option>
 </select>
-<input type="text" id="note" placeholder="Note">
-<button onclick="saveDelivery()">Save / Update</button>
-<button onclick="deleteDelivery()">Delete</button>
+<input type="text" id="noteInput" placeholder="Note">
+
+<div class="flex">
+<button id="saveBtn">Save / Update</button>
+<button id="deleteBtn">Delete</button>
+</div>
 <div id="saveMsg"></div>
 </div>
 
 <div class="card">
-<h3>Search Single</h3>
-<input type="text" id="searchSingleMobile" placeholder="Mobile">
-<button onclick="searchSingle()">Search</button>
-</div>
-
-<div class="card">
-<h3>Search Multiple (comma separated)</h3>
-<input type="text" id="searchMultiMobile" placeholder="017xx,018xx">
-<button onclick="searchMultiple()">Search Multiple</button>
-<div id="multiResult"></div>
+<h3>Search (Single)</h3>
+<input type="text" id="searchInput" placeholder="Mobile Number">
+<button id="searchBtn">Search</button>
 </div>
 
 <div id="map"></div>
@@ -78,7 +79,7 @@ button:hover{background:#333;}
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
@@ -96,168 +97,108 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let map=L.map('map').setView([23.8103,90.4125],12);
+let map;
+let userMarker;
+let deliveryMarker;
+
+const authCard = document.getElementById("authCard");
+const appDiv = document.getElementById("app");
+
+const loginEmail = document.getElementById("loginEmail");
+const loginPassword = document.getElementById("loginPassword");
+const authMsg = document.getElementById("authMsg");
+
+const mobileInput = document.getElementById("mobileInput");
+const addressInput = document.getElementById("addressInput");
+const statusSelect = document.getElementById("statusSelect");
+const noteInput = document.getElementById("noteInput");
+const saveMsg = document.getElementById("saveMsg");
+
+function initMap(){
+map = L.map('map').setView([23.8103,90.4125],13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-let userMarker;
-let deliveryMarkers=[];
-let userLat,userLng;
-
-function startLiveLocation(){
-if(!navigator.geolocation){
-alert("Geolocation not supported");
-return;
-}
-
-navigator.geolocation.watchPosition(position=>{
-userLat=position.coords.latitude;
-userLng=position.coords.longitude;
-
-if(userMarker) map.removeLayer(userMarker);
-userMarker=L.marker([userLat,userLng]).addTo(map)
-.bindPopup("📍 Your Live Location");
-
-map.setView([userLat,userLng],14);
-
-},error=>{
-alert("Location permission denied");
-},{enableHighAccuracy:true});
-}
-
-map.on("click",e=>{
-if(userMarker) return;
+navigator.geolocation.getCurrentPosition(pos=>{
+let lat = pos.coords.latitude;
+let lng = pos.coords.longitude;
+userMarker = L.marker([lat,lng]).addTo(map)
+.bindPopup("📍 Your Location").openPopup();
+map.setView([lat,lng],14);
 });
+}
 
 onAuthStateChanged(auth,user=>{
 if(user){
-authBox.classList.add("hidden");
-mainPanel.classList.remove("hidden");
-startLiveLocation();
+authCard.classList.add("hidden");
+appDiv.classList.remove("hidden");
+setTimeout(initMap,200);
 }else{
-authBox.classList.remove("hidden");
-mainPanel.classList.add("hidden");
+authCard.classList.remove("hidden");
+appDiv.classList.add("hidden");
 }
 });
 
-async function register(){
+document.getElementById("loginBtn").onclick = async ()=>{
 try{
-await createUserWithEmailAndPassword(auth,email.value,password.value);
-authMsg.innerHTML="<div class='success'>Registered Successfully</div>";
-}catch(err){
-authMsg.innerHTML="<div class='error'>"+err.message+"</div>";
-}
-}
-
-async function login(){
-try{
-await signInWithEmailAndPassword(auth,email.value,password.value);
+await signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value);
 authMsg.innerHTML="<div class='success'>Login Successful</div>";
-}catch(err){
-authMsg.innerHTML="<div class='error'>"+err.message+"</div>";
+}catch(e){
+authMsg.innerHTML="<div class='error'>"+e.message+"</div>";
 }
-}
+};
 
-async function logout(){
-await signOut(auth);
-}
-
-async function saveDelivery(){
+document.getElementById("registerBtn").onclick = async ()=>{
 try{
-if(!userMarker){
-saveMsg.innerHTML="<div class='error'>Select location on map</div>";
+await createUserWithEmailAndPassword(auth, loginEmail.value, loginPassword.value);
+authMsg.innerHTML="<div class='success'>Registered Successfully</div>";
+}catch(e){
+authMsg.innerHTML="<div class='error'>"+e.message+"</div>";
+}
+};
+
+document.getElementById("logoutBtn").onclick = ()=>signOut(auth);
+
+document.getElementById("saveBtn").onclick = async ()=>{
+try{
+if(!mobileInput.value || !addressInput.value){
+saveMsg.innerHTML="<div class='error'>Fill all fields</div>";
 return;
 }
-let latlng=userMarker.getLatLng();
-await setDoc(doc(db,"deliveries",mobile.value.trim()),{
-address:address.value.trim(),
-status:status.value,
-note:note.value,
-lat:latlng.lat,
-lng:latlng.lng,
-createdBy:auth.currentUser.uid,
-timestamp:Date.now()
+
+let lat = userMarker ? userMarker.getLatLng().lat : null;
+let lng = userMarker ? userMarker.getLatLng().lng : null;
+
+await setDoc(doc(db,"deliveries",mobileInput.value),{
+address: addressInput.value,
+status: statusSelect.value,
+note: noteInput.value || "",
+lat: lat,
+lng: lng,
+uid: auth.currentUser.uid,
+updatedAt: Date.now()
 });
+
 saveMsg.innerHTML="<div class='success'>Saved Successfully ✅</div>";
-}catch(err){
-saveMsg.innerHTML="<div class='error'>"+err.message+"</div>";
+}catch(e){
+saveMsg.innerHTML="<div class='error'>"+e.message+"</div>";
 }
-}
+};
 
-async function deleteDelivery(){
-await deleteDoc(doc(db,"deliveries",mobile.value.trim()));
-saveMsg.innerHTML="<div class='success'>Deleted Successfully</div>";
-}
+document.getElementById("deleteBtn").onclick = async ()=>{
+await deleteDoc(doc(db,"deliveries",mobileInput.value));
+saveMsg.innerHTML="<div class='success'>Deleted</div>";
+};
 
-async function searchSingle(){
-clearMarkers();
-let snap=await getDoc(doc(db,"deliveries",searchSingleMobile.value.trim()));
-if(!snap.exists()){alert("No Data");return;}
-let d=snap.data();
-let marker=L.marker([d.lat,d.lng]).addTo(map)
+document.getElementById("searchBtn").onclick = async ()=>{
+let snap = await getDoc(doc(db,"deliveries",document.getElementById("searchInput").value));
+if(!snap.exists()){alert("Not Found");return;}
+let d = snap.data();
+
+if(deliveryMarker) map.removeLayer(deliveryMarker);
+deliveryMarker = L.marker([d.lat,d.lng]).addTo(map)
 .bindPopup(d.address).openPopup();
-deliveryMarkers.push(marker);
 map.setView([d.lat,d.lng],15);
-}
-
-async function searchMultiple(){
-clearMarkers();
-let nums=searchMultiMobile.value.split(",");
-let results=[];
-for(let n of nums){
-let snap=await getDoc(doc(db,"deliveries",n.trim()));
-if(snap.exists()){
-results.push({mobile:n.trim(),...snap.data()});
-}
-}
-
-if(userLat){
-results.sort((a,b)=>distance(userLat,userLng,a.lat,a.lng)-distance(userLat,userLng,b.lat,b.lng));
-}
-
-let html="";
-results.forEach((r,i)=>{
-let marker=L.marker([r.lat,r.lng]).addTo(map)
-.bindPopup((i+1)+". "+r.address);
-deliveryMarkers.push(marker);
-
-html+=`<div class='card'>
-<b>${i+1}. ${r.mobile}</b><br>
-${r.address}<br>
-<button onclick="goRoute(${r.lat},${r.lng})">Navigate</button>
-</div>`;
-});
-multiResult.innerHTML=html;
-if(deliveryMarkers.length>0)
-map.fitBounds(deliveryMarkers.map(m=>m.getLatLng()));
-}
-
-function goRoute(lat,lng){
-window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
-}
-
-function clearMarkers(){
-deliveryMarkers.forEach(m=>map.removeLayer(m));
-deliveryMarkers=[];
-}
-
-function distance(lat1,lon1,lat2,lon2){
-let R=6371;
-let dLat=(lat2-lat1)*Math.PI/180;
-let dLon=(lon2-lon1)*Math.PI/180;
-let a=Math.sin(dLat/2)**2+
-Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
-Math.sin(dLon/2)**2;
-return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
-}
-
-window.searchMultiple=searchMultiple;
-window.searchSingle=searchSingle;
-window.saveDelivery=saveDelivery;
-window.deleteDelivery=deleteDelivery;
-window.goRoute=goRoute;
-window.login=login;
-window.register=register;
-window.logout=logout;
+};
 
 </script>
 </body>
