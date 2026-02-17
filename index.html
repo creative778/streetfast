@@ -1,461 +1,722 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Delivery Map Pro - All-in-One HTML</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Map Pro</title>
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <style>
-    :root{ --card:#fff; --bg:#f5f7fb; --text:#111; --muted:#666; --primary:#111; }
-    html,body{ height:100%; }
-    body{ margin:0; font-family: Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--text); }
-    .topbar{ background:#111; color:#fff; padding:14px 10px; text-align:center; font-size:20px; font-weight:700; }
-    .container{ max-width:1100px; margin:auto; padding:20px; }
-    .card{ background:var(--card); border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 4px 12px rgba(0,0,0,.08); }
-    input,select{ width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:6px; font-size:14px; }
-    button{ padding:10px 14px; border:none; border-radius:6px; background:var(--primary); color:#fff; cursor:pointer; margin-right:6px; }
-    button:hover{ background:#333; }
-    #map{ height:420px; border-radius:12px; }
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+.topbar { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; padding: 18px; text-align: center; font-size: 22px; font-weight: 700; letter-spacing: 1px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+.topbar span { margin-right: 8px; }
+.container { max-width: 1200px; margin: auto; padding: 20px; }
+.card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.card h3 { color: #1a1a2e; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid #eef2f7; }
 
-    .hidden{ display:none; }
-    .success{ color:green; font-weight:600; }
-    .error{ color:red; font-weight:600; }
-    .flex{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .flex > *{ min-width:0; }
+/* Form Elements */
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-weight: 600; color: #444; margin-bottom: 6px; font-size: 14px; }
+input, select, textarea { width: 100%; padding: 12px 15px; margin: 8px 0; border: 2px solid #e1e5eb; border-radius: 8px; font-size: 15px; transition: all 0.3s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+textarea { resize: vertical; min-height: 80px; }
 
-    /* Extra UI niceties */
-    .status{ font-size:12px; color:var(--muted); margin-left:6px; }
-    #authMsg, #saveMsg { min-height: 1.2em; margin-top:6px; }
+/* Buttons */
+.btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(79,70,229,0.4); }
+.btn-secondary { background: #6b7280; color: #fff; }
+.btn-secondary:hover { background: #4b5563; }
+.btn-danger { background: #ef4444; color: #fff; }
+.btn-danger:hover { background: #dc2626; }
+.btn-success { background: #10b981; color: #fff; }
+.btn-success:hover { background: #059669; }
+.btn-outline { background: transparent; border: 2px solid #4f46e5; color: #4f46e5; }
+.btn-outline:hover { background: #4f46e5; color: #fff; }
+.btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+.btn-group .btn { flex: 1; min-width: 120px; justify-content: center; }
 
-    /* History panel styling */
-    #historyPanel{ margin-top:8px; }
-    #historyList{ display:flex; flex-direction:column; gap:8px; }
-    .historyItem{ border:1px solid #e5e5e5; padding:8px; border-radius:8px; background:#fafafa; }
-  </style>
+/* Status Badge */
+.status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+.status-pending { background: #fef3c7; color: #d97706; }
+.status-delivered { background: #d1fae5; color: #059669; }
+.status-returned { background: #fee2e2; color: #dc2626; }
+
+/* Map */
+#map { height: 500px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+
+/* Messages */
+.message { padding: 12px 16px; border-radius: 8px; margin: 10px 0; font-weight: 500; }
+.success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+.error { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+.info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+
+/* Auth Section */
+.auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+.auth-card { max-width: 420px; width: 100%; }
+.auth-card .logo { text-align: center; margin-bottom: 30px; }
+.auth-card .logo h2 { color: #1a1a2e; font-size: 28px; }
+.auth-card .logo p { color: #6b7280; margin-top: 5px; }
+
+/* Details Panel */
+.details-panel { background: #f8fafc; border-radius: 10px; padding: 20px; margin-top: 15px; display: none; }
+.details-panel.show { display: block; animation: fadeIn 0.3s; }
+.details-panel h4 { color: #1a1a2e; margin-bottom: 15px; }
+.detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
+.detail-row:last-child { border-bottom: none; }
+.detail-label { font-weight: 600; color: #6b7280; }
+.detail-value { color: #1a1a2e; font-weight: 500; }
+
+/* Location Controls */
+.location-controls { display: flex; gap: 10px; margin: 10px 0; }
+.location-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #6b7280; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; }
+.dot.active { background: #10b981; animation: pulse 2s infinite; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Utility */
+.hidden { display: none !important; }
+.flex { display: flex; gap: 10px; flex-wrap: wrap; }
+.mt-10 { margin-top: 10px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container { padding: 15px; }
+  .card { padding: 18px; }
+  #map { height: 350px; }
+  .btn-group .btn { min-width: 100%; }
+}
+</style>
 </head>
 <body>
 
-  <div class="topbar">🚚 Delivery Map Pro</div>
+<!-- Top Bar -->
+<div class="topbar">
+  <span>🚚</span> Delivery Map Pro
+</div>
 
-  <div class="container">
+<div class="container">
 
-    <!-- Auth Card -->
-    <div id="authCard" class="card">
-      <h3>Login</h3>
-      <input type="email" id="loginEmail" placeholder="Email" autocomplete="username" />
-      <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" />
-      <div class="flex">
-        <button id="loginBtn">Login</button>
-        <button id="registerBtn" title="Create a new account">Register</button>
-      </div>
-      <div id="authMsg"></div>
+<!-- Auth Card -->
+<div id="authCard" class="card auth-wrapper">
+  <div class="auth-card">
+    <div class="logo">
+      <h2>🚚 Delivery Map Pro</h2>
+      <p>Manage your deliveries efficiently</p>
     </div>
-
-    <!-- App (hidden until login) -->
-    <div id="app" class="hidden">
-
-      <div class="card">
-        <div class="flex" style="justify-content:space-between; align-items:center;">
-          <div class="flex" style="gap:10px; align-items:center;">
-            <button id="logoutBtn">Logout</button>
-            <span class="status" id="loginStatus">Offline</span>
-          </div>
-          <div id="locationStatus" class="status" title="Live location status">Live location: Off</div>
-        </div>
-        <h3>Add / Update Delivery</h3>
-
-        <input type="text" id="mobileInput" placeholder="Mobile Number" />
-        <input type="text" id="addressInput" placeholder="Full Address" />
-        <select id="statusSelect">
-          <option value="Pending">Pending</option>
-          <option value="Delivered">Delivered</option>
-          <option value="Returned">Returned</option>
-        </select>
-        <input type="text" id="noteInput" placeholder="Note (optional)" />
-
-        <div class="flex">
-          <button id="saveBtn">Save / Update</button>
-          <button id="deleteBtn" style="background:#c0392b;">Delete</button>
-        </div>
-        <div id="saveMsg"></div>
-      </div>
-
-      <!-- Search section -->
-      <div class="card">
-        <h3>Search (Single)</h3>
-        <input type="text" id="searchInput" placeholder="Mobile Number" />
-        <button id="searchBtn">Search</button>
-      </div>
-
-      <!-- History + Details -->
-      <div id="historyPanel" class="card hidden">
-        <h3>Delivery History for: <span id="historyMobile"></span></h3>
-        <div id="historyList"></div>
-      </div>
-
-      <!-- Map -->
-      <div id="map" class="card"></div>
-
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="Enter your email">
     </div>
-
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter your password">
+    </div>
+    <div class="btn-group">
+      <button id="loginBtn" class="btn btn-primary" style="flex:2">🔑 Login</button>
+      <button id="registerBtn" class="btn btn-outline" style="flex:1">Register</button>
+    </div>
+    <div id="authMsg"></div>
+    <p style="text-align:center;margin-top:15px;color:#6b7280;font-size:13px;">
+      For demo: Register new account or use existing credentials
+    </p>
   </div>
+</div>
 
-  <script type="module">
+<!-- Main App -->
+<div id="app" class="hidden">
 
-    // Firebase 9+ (modular) imports
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+<!-- Header & Logout -->
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+    <div>
+      <h3 style="margin:0;border:none;padding:0;">Welcome, <span id="userEmail" style="color:#4f46e5;"></span></h3>
+    </div>
+    <button id="logoutBtn" class="btn btn-danger">🚪 Logout</button>
+  </div>
+  
+  <!-- Live Location Status -->
+  <div class="location-controls mt-10">
+    <div class="location-status">
+      <span class="dot" id="locationDot"></span>
+      <span id="locationStatusText">Location: Not available</span>
+    </div>
+    <button id="refreshLocationBtn" class="btn btn-secondary" style="padding:8px 15px;font-size:13px;">🔄 Refresh</button>
+  </div>
+</div>
 
-    // NOTE: Replace with your actual Firebase config. (Keep in mind this is public in a client app.)
-    const firebaseConfig = {
-      apiKey: "AIzaSyA82YWF574aCnkYdwN0airAcFl-_M21sHM",
-      authDomain: "delivery-map-pro.firebaseapp.com",
-      projectId: "delivery-map-pro",
-      storageBucket: "delivery-map-pro.appspot.com",
-      messagingSenderId: "544868009171",
-      appId: "1:544868009171:web:005b3e95248eac940b8026"
-    };
+<!-- Add/Update Delivery Card -->
+<div class="card">
+  <h3>📦 Add / Update Delivery</h3>
+  
+  <div class="flex" style="gap:15px;">
+    <div style="flex:1;min-width:250px;">
+      <div class="form-group">
+        <label>Mobile Number *</label>
+        <input type="tel" id="mobileInput" placeholder="01XXXXXXXXX">
+      </div>
+    </div>
+    <div style="flex:1;min-width:250px;">
+      <div class="form-group">
+        <label>Delivery Status</label>
+        <select id="statusSelect">
+          <option value="Pending">⏳ Pending</option>
+          <option value="Delivered">✅ Delivered</option>
+          <option value="Returned">↩️ Returned</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>Full Address *</label>
+    <input type="text" id="addressInput" placeholder="Enter complete delivery address">
+  </div>
+  
+  <div class="form-group">
+    <label>Pickup Location</label>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="text" id="pickupLat" placeholder="Latitude" style="flex:1;min-width:120px;" readonly>
+      <input type="text" id="pickupLng" placeholder="Longitude" style="flex:1;min-width:120px;" readonly>
+      <button id="getPickupLocationBtn" class="btn btn-secondary">📍 Get Current</button>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>Delivery Notes</label>
+    <textarea id="noteInput" placeholder="Any special instructions..."></textarea>
+  </div>
+  
+  <div class="btn-group">
+    <button id="saveBtn" class="btn btn-success">💾 Save / Update</button>
+    <button id="clearFormBtn" class="btn btn-secondary">✨ Clear Form</button>
+    <button id="deleteBtn" class="btn btn-danger">🗑️ Delete</button>
+  </div>
+  <div id="saveMsg"></div>
+</div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+<!-- Search Card -->
+<div class="card">
+  <h3>🔍 Search Delivery</h3>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <input type="tel" id="searchInput" placeholder="Enter mobile number to search" style="flex:1;min-width:200px;">
+    <button id="searchBtn" class="btn btn-primary">Search</button>
+  </div>
+  
+  <!-- Search Results Details -->
+  <div id="detailsPanel" class="details-panel">
+    <h4>📋 Delivery Details</h4>
+    <div class="detail-row">
+      <span class="detail-label">Mobile:</span>
+      <span class="detail-value" id="detailMobile">-</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Address:</span>
+      <span class="detail-value" id="detailAddress">-</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Status:</span>
+      <span class="detail-value" id="detailStatus">-</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Note:</span>
+      <span class="detail-value" id="detailNote">-</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Location:</span>
+      <span class="detail-value" id="detailLocation">-</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Last Updated:</span>
+      <span class="detail-value" id="detailUpdated">-</span>
+    </div>
+  </div>
+</div>
 
-    // UI references
-    const authCard = document.getElementById("authCard");
-    const appDiv = document.getElementById("app");
+<!-- Map Card -->
+<div class="card">
+  <h3>🗺️ Live Map</h3>
+  <div id="map"></div>
+</div>
 
-    const loginEmail = document.getElementById("loginEmail");
-    const loginPassword = document.getElementById("loginPassword");
-    const authMsg = document.getElementById("authMsg");
+</div>
 
-    const logoutBtn = document.getElementById("logoutBtn");
-    const loginStatus = document.getElementById("loginStatus");
-    const locationStatus = document.getElementById("locationStatus");
+</div>
 
-    const mobileInput = document.getElementById("mobileInput");
-    const addressInput = document.getElementById("addressInput");
-    const statusSelect = document.getElementById("statusSelect");
-    const noteInput = document.getElementById("noteInput");
-    const saveMsg = document.getElementById("saveMsg");
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, serverTimestamp } 
+from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-    const saveBtn = document.getElementById("saveBtn");
-    const deleteBtn = document.getElementById("deleteBtn");
+// ==================== CONFIGURATION ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyA82YWF574aCnkYdwN0airAcFl-_M21sHM",
+  authDomain: "delivery-map-pro.firebaseapp.com",
+  projectId: "delivery-map-pro",
+  storageBucket: "delivery-map-pro.firebasestorage.app",
+  messagingSenderId: "544868009171",
+  appId: "1:544868009171:web:005b3e95248eac940b8026"
+};
 
-    const searchInput = document.getElementById("searchInput");
-    const searchBtn = document.getElementById("searchBtn");
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    const historyPanel = document.getElementById("historyPanel");
-    const historyMobile = document.getElementById("historyMobile");
-    const historyList = document.getElementById("historyList");
+// ==================== DOM ELEMENTS ====================
+const authCard = document.getElementById("authCard");
+const appDiv = document.getElementById("app");
+const loginEmail = document.getElementById("loginEmail");
+const loginPassword = document.getElementById("loginPassword");
+const authMsg = document.getElementById("authMsg");
+const userEmail = document.getElementById("userEmail");
+const locationDot = document.getElementById("locationDot");
+const locationStatusText = document.getElementById("locationStatusText");
 
-    // Map state
-    let map;
-    let userMarker;
-    let currentLat = null;
-    let currentLng = null;
-    let watchId = null;
-    let deliveryMarker = null;
+// Form elements
+const mobileInput = document.getElementById("mobileInput");
+const addressInput = document.getElementById("addressInput");
+const statusSelect = document.getElementById("statusSelect");
+const noteInput = document.getElementById("noteInput");
+const pickupLat = document.getElementById("pickupLat");
+const pickupLng = document.getElementById("pickupLng");
+const saveMsg = document.getElementById("saveMsg");
 
-    // Auto-prefill default login credentials (as requested)
-    window.addEventListener("load", () => {
-      // Default credentials (you asked for these). You can remove this in production.
-      loginEmail.value = "streetfast@gmail.com";
-      loginPassword.value = "Street@123";
-      // Focus password for quick login
-      // loginPassword.focus();
+// Search elements
+const searchInput = document.getElementById("searchInput");
+const detailsPanel = document.getElementById("detailsPanel");
+
+// Map variables
+let map;
+let userMarker = null;
+let deliveryMarkers = [];
+let watchId = null;
+let currentPosition = null;
+
+// ==================== MAP INITIALIZATION ====================
+function initMap() {
+  if (map) {
+    map.remove();
+    map = null;
+  }
+  
+  // Default view (Dhaka, Bangladesh)
+  map = L.map('map').setView([23.8103, 90.4125], 12);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  
+  // Request location permission and track
+  requestLocationPermission();
+}
+
+// ==================== LOCATION SERVICES ====================
+function requestLocationPermission() {
+  if (!navigator.geolocation) {
+    updateLocationStatus(false, "Geolocation not supported");
+    return;
+  }
+  
+  updateLocationStatus(false, "Requesting permission...");
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      currentPosition = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      updateUserMarker(currentPosition);
+      updateLocationStatus(true, "Live location active");
+    },
+    (error) => {
+      let msg = "Location unavailable";
+      if (error.code === 1) msg = "Permission denied";
+      else if (error.code === 2) msg = "Position unavailable";
+      else if (error.code === 3) msg = "Timeout";
+      updateLocationStatus(false, msg);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+}
+
+function startLocationWatch() {
+  if (watchId) {
+    navigator.geolocation.clearWatch(watchId);
+  }
+  
+  watchId = navigator.geolocation.watchPosition(
+    (position) => {
+      currentPosition = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      updateUserMarker(currentPosition);
+      updateLocationStatus(true, "Live tracking active");
+    },
+    (error) => {
+      console.error("Location watch error:", error);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 0
+    }
+  );
+}
+
+function updateUserMarker(pos) {
+  if (!map) return;
+  
+  if (userMarker) {
+    userMarker.setLatLng([pos.lat, pos.lng]);
+  } else {
+    const userIcon = L.divIcon({
+      html: '<div style="background:#4f46e5;width:20px;height:20px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
     });
+    
+    userMarker = L.marker([pos.lat, pos.lng], { icon: userIcon })
+      .addTo(map)
+      .bindPopup("<b>📍 Your Location</b><br>Current Position")
+      .openPopup();
+  }
+  
+  map.setView([pos.lat, pos.lng], 14);
+}
 
-    // Initialize the map (after login)
-    function initMap(){
-      // If map already exists, do not recreate
-      if (map) return;
+function updateLocationStatus(active, text) {
+  locationDot.classList.toggle('active', active);
+  locationStatusText.textContent = text;
+}
 
-      // Start with a conservative default location; we'll recenter on user location
-      map = L.map('map').setView([23.8103, 90.4125], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+// ==================== AUTHENTICATION ====================
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    authCard.classList.add("hidden");
+    appDiv.classList.remove("hidden");
+    userEmail.textContent = user.email;
+    
+    // Initialize map after short delay
+    setTimeout(() => {
+      initMap();
+      startLocationWatch();
+    }, 300);
+  } else {
+    authCard.classList.remove("hidden");
+    appDiv.classList.add("hidden");
+    userEmail.textContent = "";
+    
+    if (map) {
+      map.remove();
+      map = null;
     }
-
-    // Start live location tracking
-    function startLocationTracking(){
-      if (!("geolocation" in navigator)){
-        locationStatus.textContent = "Live location: Not available in this browser";
-        return;
-      }
-
-      // If we already have a watcher, skip creating another
-      if (watchId !== null) return;
-
-      // Try to watch position with high accuracy
-      watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          currentLat = lat;
-          currentLng = lng;
-
-          // Create or move the user marker
-          if (!userMarker){
-            userMarker = L.marker([lat, lng]).addTo(map)
-              .bindPopup("📍 Your Location").openPopup();
-            map.setView([lat, lng], 15);
-          } else {
-            userMarker.setLatLng([lat, lng]);
-          }
-
-          // Optional: animate map to follow user on movement
-          // map.panTo([lat, lng], { animate: true, duration: 0.25 });
-
-          // Update the login/status text
-          loginStatus.textContent = "Online";
-          locationStatus.textContent = "Live location: On";
-
-        },
-        (err) => {
-          // Handle permission denied or other errors gracefully
-          console.warn("Geolocation error:", err);
-          if (err.code === err.PERMISSION_DENIED){
-            locationStatus.textContent = "Live location: Permission denied";
-          } else {
-            locationStatus.textContent = "Live location: Error getting position";
-          }
-        },
-        {
-          enableHighAccuracy: true,
-          maximumAge: 0,
-          timeout: 10000
-        }
-      );
+    if (watchId) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
     }
+  }
+});
 
-    // Stop live location tracking (on sign-out)
-    function stopLocationTracking(){
-      if (watchId !== null){
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-      }
-      if (userMarker){
-        // Do not remove the marker; keep showing current device location if user is logged out
-        // You can optionally remove or keep it depending on UX
-      }
-      locationStatus.textContent = "Live location: Off";
-      loginStatus.textContent = "Offline";
-      currentLat = null;
-      currentLng = null;
+// Login
+document.getElementById("loginBtn").onclick = async () => {
+  const email = loginEmail.value.trim();
+  const password = loginPassword.value;
+  
+  if (!email || !password) {
+    authMsg.innerHTML = '<div class="message error">Please enter email and password</div>';
+    return;
+  }
+  
+  authMsg.innerHTML = '<div class="message info">Logging in...</div>';
+  
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    authMsg.innerHTML = '<div class="message success">✓ Login Successful!</div>';
+    loginEmail.value = '';
+    loginPassword.value = '';
+  } catch (error) {
+    console.error("Login error:", error);
+    let msg = error.message;
+    if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
+    else if (error.code === 'auth/user-not-found') msg = 'No account with this email';
+    else if (error.code === 'auth/wrong-password') msg = 'Incorrect password';
+    else if (error.code === 'auth/invalid-credential') msg = 'Invalid email or password';
+    authMsg.innerHTML = `<div class="message error">${msg}</div>`;
+  }
+};
+
+// Register
+document.getElementById("registerBtn").onclick = async () => {
+  const email = loginEmail.value.trim();
+  const password = loginPassword.value;
+  
+  if (!email || !password) {
+    authMsg.innerHTML = '<div class="message error">Please enter email and password</div>';
+    return;
+  }
+  
+  if (password.length < 6) {
+    authMsg.innerHTML = '<div class="message error">Password must be at least 6 characters</div>';
+    return;
+  }
+  
+  authMsg.innerHTML = '<div class="message info">Creating account...</div>';
+  
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    authMsg.innerHTML = '<div class="message success">✓ Account created! You are now logged in.</div>';
+    loginEmail.value = '';
+    loginPassword.value = '';
+  } catch (error) {
+    console.error("Register error:", error);
+    let msg = error.message;
+    if (error.code === 'auth/email-already-in-use') msg = 'An account with this email already exists';
+    else if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
+    else if (error.code === 'auth/weak-password') msg = 'Password is too weak';
+    authMsg.innerHTML = `<div class="message error">${msg}</div>`;
+  }
+};
+
+// Logout
+document.getElementById("logoutBtn").onclick = async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
+
+// Refresh Location
+document.getElementById("refreshLocationBtn").onclick = () => {
+  requestLocationPermission();
+};
+
+// Get Pickup Location
+document.getElementById("getPickupLocationBtn").onclick = () => {
+  if (currentPosition) {
+    pickupLat.value = currentPosition.lat.toFixed(6);
+    pickupLng.value = currentPosition.lng.toFixed(6);
+    saveMsg.innerHTML = '<div class="message success">Pickup location captured!</div>';
+  } else {
+    saveMsg.innerHTML = '<div class="message error">Location not available. Please wait or refresh.</div>';
+  }
+};
+
+// ==================== SAVE / UPDATE DELIVERY ====================
+document.getElementById("saveBtn").onclick = async () => {
+  const mobile = mobileInput.value.trim();
+  const address = addressInput.value.trim();
+  const status = statusSelect.value;
+  const note = noteInput.value.trim();
+  const lat = pickupLat.value ? parseFloat(pickupLat.value) : null;
+  const lng = pickupLng.value ? parseFloat(pickupLng.value) : null;
+  
+  // Validation
+  if (!mobile) {
+    saveMsg.innerHTML = '<div class="message error">Mobile number is required!</div>';
+    mobileInput.focus();
+    return;
+  }
+  
+  if (!address) {
+    saveMsg.innerHTML = '<div class="message error">Address is required!</div>';
+    addressInput.focus();
+    return;
+  }
+  
+  if (!/^\d{8,15}$/.test(mobile.replace(/\D/g, ''))) {
+    saveMsg.innerHTML = '<div class="message error">Please enter a valid mobile number</div>';
+    return;
+  }
+  
+  saveMsg.innerHTML = '<div class="message info">Saving...</div>';
+  
+  try {
+    const deliveryData = {
+      address: address,
+      status: status,
+      note: note,
+      lat: lat,
+      lng: lng,
+      uid: auth.currentUser.uid,
+      updatedAt: Date.now()
+    };
+    
+    await setDoc(doc(db, "deliveries", mobile), deliveryData);
+    
+    saveMsg.innerHTML = '<div class="message success">✓ Saved Successfully! Delivery: ' + mobile + '</div>';
+    
+    // Add marker to map
+    if (lat && lng) {
+      addDeliveryMarker(lat, lng, address, status, mobile);
     }
+    
+    // Clear form after successful save
+    setTimeout(() => {
+      clearForm();
+    }, 2000);
+    
+  } catch (error) {
+    console.error("Save error:", error);
+    saveMsg.innerHTML = '<div class="message error">Error: ' + error.message + '</div>';
+  }
+};
 
-    // Auth state handling
-    onAuthStateChanged(auth, (user) => {
-      if (user){
-        // User is signed in
-        authCard.classList.add("hidden");
-        appDiv.classList.remove("hidden");
+// Clear Form
+document.getElementById("clearFormBtn").onclick = clearForm;
 
-        // Init map (after login)
-        initMap();
-        // Start live location tracking
-        startLocationTracking();
+function clearForm() {
+  mobileInput.value = '';
+  addressInput.value = '';
+  statusSelect.value = 'Pending';
+  noteInput.value = '';
+  pickupLat.value = '';
+  pickupLng.value = '';
+  saveMsg.innerHTML = '';
+}
 
-        loginStatus.textContent = "Online";
+// ==================== DELETE DELIVERY ====================
+document.getElementById("deleteBtn").onclick = async () => {
+  const mobile = mobileInput.value.trim();
+  
+  if (!mobile) {
+    saveMsg.innerHTML = '<div class="message error">Enter mobile number to delete</div>';
+    return;
+  }
+  
+  if (!confirm('Are you sure you want to delete delivery: ' + mobile + '?')) {
+    return;
+  }
+  
+  try {
+    await deleteDoc(doc(db, "deliveries", mobile));
+    saveMsg.innerHTML = '<div class="message success">✓ Deleted successfully!</div>';
+    clearForm();
+    detailsPanel.classList.remove('show');
+  } catch (error) {
+    console.error("Delete error:", error);
+    saveMsg.innerHTML = '<div class="message error">Error: ' + error.message + '</div>';
+  }
+};
 
-      } else {
-        // User is signed out
-        appDiv.classList.add("hidden");
-        authCard.classList.remove("hidden");
+// ==================== SEARCH DELIVERY ====================
+document.getElementById("searchBtn").onclick = async () => {
+  const searchMobile = searchInput.value.trim();
+  
+  if (!searchMobile) {
+    alert('Please enter a mobile number to search');
+    return;
+  }
+  
+  try {
+    const snap = await getDoc(doc(db, "deliveries", searchMobile));
+    
+    if (!snap.exists()) {
+      alert('No delivery found with this number: ' + searchMobile);
+      detailsPanel.classList.remove('show');
+      return;
+    }
+    
+    const d = snap.data();
+    
+    // Fill form
+    mobileInput.value = searchMobile;
+    addressInput.value = d.address || '';
+    statusSelect.value = d.status || 'Pending';
+    noteInput.value = d.note || '';
+    pickupLat.value = d.lat || '';
+    pickupLng.value = d.lng || '';
+    
+    // Show details panel
+    document.getElementById('detailMobile').textContent = searchMobile;
+    document.getElementById('detailAddress').textContent = d.address || '-';
+    
+    const statusClass = 'status-' + (d.status || 'pending').toLowerCase();
+    document.getElementById('detailStatus').innerHTML = 
+      `<span class="status-badge ${statusClass}">${d.status || 'Pending'}</span>`;
+    
+    document.getElementById('detailNote').textContent = d.note || '-';
+    document.getElementById('detailLocation').textContent = 
+      d.lat && d.lng ? `${d.lat.toFixed(6)}, ${d.lng.toFixed(6)}` : 'Not set';
+    document.getElementById('detailUpdated').textContent = 
+      d.updatedAt ? new Date(d.updatedAt).toLocaleString() : '-';
+    
+    detailsPanel.classList.add('show');
+    
+    // Show on map
+    if (d.lat && d.lng) {
+      showOnMap(d.lat, d.lng, d.address, d.status);
+    }
+    
+  } catch (error) {
+    console.error("Search error:", error);
+    alert('Error searching: ' + error.message);
+  }
+};
 
-        // Stop watchers and clear UI
-        stopLocationTracking();
-        if (map){
-          // Optionally reset view
-          // map.setView([0,0], 2);
-        }
-      }
-    });
+// Show delivery on map
+function showOnMap(lat, lng, address, status) {
+  if (!map) return;
+  
+  // Clear existing delivery markers
+  deliveryMarkers.forEach(m => map.removeLayer(m));
+  deliveryMarkers = [];
+  
+  let color = '#6b7280';
+  if (status === 'Delivered') color = '#10b981';
+  else if (status === 'Returned') color = '#ef4444';
+  else color = '#f59e0b';
+  
+  const deliveryIcon = L.divIcon({
+    html: `<div style="background:${color};width:24px;height:24px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;">📦</div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+  
+  const marker = L.marker([lat, lng], { icon: deliveryIcon })
+    .addTo(map)
+    .bindPopup(`<b>${status}</b><br>${address}`)
+    .openPopup();
+  
+  deliveryMarkers.push(marker);
+  map.setView([lat, lng], 16);
+}
 
-    // Login
-    document.getElementById("loginBtn").onclick = async () => {
-      try{
-        await signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value);
-        authMsg.innerHTML = "<div class='success'>Login Successful</div>";
-      }catch(e){
-        authMsg.innerHTML = "<div class='error'>"+e.message+"</div>";
-      }
-    };
+// Add delivery marker
+function addDeliveryMarker(lat, lng, address, status, mobile) {
+  if (!map) return;
+  
+  showOnMap(lat, lng, address, status);
+}
 
-    // Register
-    document.getElementById("registerBtn").onclick = async () => {
-      try{
-        await createUserWithEmailAndPassword(auth, loginEmail.value, loginPassword.value);
-        authMsg.innerHTML = "<div class='success'>Registered Successfully</div>";
-      }catch(e){
-        authMsg.innerHTML = "<div class='error'>"+e.message+"</div>";
-      }
-    };
+// Allow Enter key to search
+searchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('searchBtn').click();
+  }
+});
 
-    // Logout
-    logoutBtn.onclick = () => signOut(auth);
+// Allow Enter key to login
+loginPassword.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('loginBtn').click();
+  }
+});
 
-    // Save / Update delivery
-    document.getElementById("saveBtn").onclick = async () => {
-      try{
-        // Basic validation
-        if(!mobileInput.value.trim() || !addressInput.value.trim()){
-          saveMsg.innerHTML = "<div class='error'>Please fill Mobile Number and Address</div>";
-          return;
-        }
-        // Use current location if available
-        let lat = currentLat;
-        let lng = currentLng;
-
-        // If we don't have a live location yet, try to fallback to userMarker
-        if (lat == null && userMarker){
-          const ll = userMarker.getLatLng();
-          lat = ll.lat;
-          lng = ll.lng;
-        }
-
-        const docRef = doc(db, "deliveries", mobileInput.value.trim());
-
-        // Build entry
-        const entry = {
-          address: addressInput.value.trim(),
-          status: statusSelect.value,
-          note: (noteInput.value ?? "").trim(),
-          lat, lng,
-          updatedAt: Date.now(),
-        };
-
-        // Merge history array
-        const existing = await getDoc(docRef);
-        let history = [];
-        if (existing.exists()){
-          const data = existing.data();
-          history = Array.isArray(data.history) ? data.history.slice() : [];
-        }
-
-        // Push new history entry
-        history.push({
-          address: entry.address,
-          status: entry.status,
-          note: entry.note,
-          lat: entry.lat,
-          lng: entry.lng,
-          timestamp: Date.now()
-        });
-
-        // Write/merge
-        await setDoc(docRef, {
-          address: entry.address,
-          status: entry.status,
-          note: entry.note,
-          lat: entry.lat,
-          lng: entry.lng,
-          updatedAt: entry.updatedAt,
-          uid: auth.currentUser ? auth.currentUser.uid : null,
-          history: history
-        }, { merge: true });
-
-        saveMsg.innerHTML = "<div class='success'>Saved Successfully ✅</div>";
-
-        // Optional: refresh search/history panel if needed
-      }catch(e){
-        saveMsg.innerHTML = "<div class='error'>"+e.message+"</div>";
-      }
-    };
-
-    // Delete delivery
-    document.getElementById("deleteBtn").onclick = async () => {
-      try{
-        const key = mobileInput.value.trim();
-        if(!key){
-          saveMsg.innerHTML = "<div class='error'>Enter a Mobile Number to delete</div>";
-          return;
-        }
-        await deleteDoc(doc(db, "deliveries", key));
-        saveMsg.innerHTML = "<div class='success'>Deleted</div>";
-
-        // Clean up UI markers
-        if (deliveryMarker){
-          map.removeLayer(deliveryMarker);
-          deliveryMarker = null;
-        }
-        // Clear history panel if it was showing
-        historyPanel.classList.add("hidden");
-        historyList.innerHTML = "";
-        historyMobile.textContent = "";
-
-      }catch(e){
-        saveMsg.innerHTML = "<div class='error'>"+e.message+"</div>";
-      }
-    };
-
-    // Search
-    document.getElementById("searchBtn").onclick = async () => {
-      try{
-        const mobile = searchInput.value.trim();
-        if(!mobile){
-          alert("Please enter a Mobile Number to search");
-          return;
-        }
-        const snap = await getDoc(doc(db, "deliveries", mobile));
-        if(!snap.exists()){
-          alert("Not Found");
-          // Clear any existing marker/history if needed
-          if (deliveryMarker){
-            map.removeLayer(deliveryMarker);
-            deliveryMarker = null;
-          }
-          historyPanel.classList.add("hidden");
-          historyList.innerHTML = "";
-          historyMobile.textContent = "";
-          return;
-        }
-        const d = snap.data();
-
-        // Show history panel
-        historyPanel.classList.remove("hidden");
-        historyMobile.textContent = mobile;
-
-        // Render history
-        const hist = Array.isArray(d.history) ? d.history : [];
-        let html = '';
-        if (hist.length === 0){
-          html = "<div class='historyItem'>No history entries yet.</div>";
-        } else {
-          html = hist.map(h => {
-            const t = new Date(h.timestamp || Date.now()).toLocaleString();
-            return `<div class="historyItem">
-              <div><strong>Time:</strong> ${t}</div>
-              <div><strong>Address:</strong> ${h.address}</div>
-              <div><strong>Status:</strong> ${h.status}</div>
-              <div><strong>Note:</strong> ${h.note || ""}</div>
-              <div><strong>Lat/Lng:</strong> ${h.lat ?? ""}, ${h.lng ?? ""}</div>
-            </div>`;
-          }).join('');
-        }
-        historyList.innerHTML = html;
-
-        // Show marker for the saved location
-        const lat = d.lat;
-        const lng = d.lng;
-        if (typeof lat === "number" && typeof lng === "number"){
-          if (deliveryMarker) map.removeLayer(deliveryMarker);
-          deliveryMarker = L.marker([lat, lng]).addTo(map)
-            .bindPopup(`<strong>${d.address}</strong><br/>Status: ${d.status}<br/>Note: ${d.note || ""}`).openPopup();
-          map.setView([lat, lng], 15);
-        } else {
-          console.warn("Search result has no coordinates");
-        }
-
-      }catch(e){
-        alert("Error during search: " + e.message);
-      }
-    };
-
-  </script>
+</script>
 </body>
 </html>
