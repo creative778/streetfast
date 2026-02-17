@@ -17,14 +17,12 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-heig
 .card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
 .card h3 { color: #1a1a2e; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid #eef2f7; }
 
-/* Form Elements */
 .form-group { margin-bottom: 15px; }
 .form-group label { display: block; font-weight: 600; color: #444; margin-bottom: 6px; font-size: 14px; }
 input, select, textarea { width: 100%; padding: 12px 15px; margin: 8px 0; border: 2px solid #e1e5eb; border-radius: 8px; font-size: 15px; transition: all 0.3s; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
 textarea { resize: vertical; min-height: 80px; }
 
-/* Buttons */
 .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
 .btn-primary { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(79,70,229,0.4); }
@@ -39,52 +37,50 @@ textarea { resize: vertical; min-height: 80px; }
 .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
 .btn-group .btn { flex: 1; min-width: 120px; justify-content: center; }
 
-/* Status Badge */
 .status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; }
 .status-pending { background: #fef3c7; color: #d97706; }
 .status-delivered { background: #d1fae5; color: #059669; }
 .status-returned { background: #fee2e2; color: #dc2626; }
 
-/* Map */
 #map { height: 500px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
 
-/* Messages */
 .message { padding: 12px 16px; border-radius: 8px; margin: 10px 0; font-weight: 500; }
 .success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
 .error { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
 .info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+.warning { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
 
-/* Auth Section */
 .auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
 .auth-card { max-width: 420px; width: 100%; }
 .auth-card .logo { text-align: center; margin-bottom: 30px; }
 .auth-card .logo h2 { color: #1a1a2e; font-size: 28px; }
 .auth-card .logo p { color: #6b7280; margin-top: 5px; }
 
-/* Details Panel */
-.details-panel { background: #f8fafc; border-radius: 10px; padding: 20px; margin-top: 15px; display: none; }
-.details-panel.show { display: block; animation: fadeIn 0.3s; }
-.details-panel h4 { color: #1a1a2e; margin-bottom: 15px; }
-.detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
-.detail-row:last-child { border-bottom: none; }
-.detail-label { font-weight: 600; color: #6b7280; }
-.detail-value { color: #1a1a2e; font-weight: 500; }
-
-/* Location Controls */
-.location-controls { display: flex; gap: 10px; margin: 10px 0; }
+.location-controls { display: flex; gap: 10px; margin: 10px 0; align-items: center; flex-wrap: wrap; }
 .location-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #6b7280; }
 .dot { width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; }
 .dot.active { background: #10b981; animation: pulse 2s infinite; }
+.dot.error { background: #ef4444; }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.search-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.search-tag { background: #e0e7ff; color: #4f46e5; padding: 6px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.search-tag .remove { cursor: pointer; font-weight: bold; }
+.search-tag.not-found { background: #fee2e2; color: #dc2626; }
 
-/* Utility */
+.results-list { max-height: 400px; overflow-y: auto; margin-top: 15px; }
+.result-item { padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px; background: #f9fafb; }
+.result-item:hover { background: #f3f4f6; }
+.result-item .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.result-item .mobile { font-weight: 700; color: #1a1a2e; font-size: 16px; }
+.result-item .address { color: #6b7280; margin: 5px 0; }
+.result-item .meta { font-size: 12px; color: #9ca3af; }
+
 .hidden { display: none !important; }
 .flex { display: flex; gap: 10px; flex-wrap: wrap; }
 .mt-10 { margin-top: 10px; }
 
-/* Responsive */
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
 @media (max-width: 768px) {
   .container { padding: 15px; }
   .card { padding: 18px; }
@@ -95,19 +91,18 @@ textarea { resize: vertical; min-height: 80px; }
 </head>
 <body>
 
-<!-- Top Bar -->
 <div class="topbar">
   <span>🚚</span> Delivery Map Pro
 </div>
 
 <div class="container">
 
-<!-- Auth Card -->
+<!-- Login Panel -->
 <div id="authCard" class="card auth-wrapper">
   <div class="auth-card">
     <div class="logo">
       <h2>🚚 Delivery Map Pro</h2>
-      <p>Manage your deliveries efficiently</p>
+      <p>Secure Delivery Management</p>
     </div>
     <div class="form-group">
       <label>Email Address</label>
@@ -122,16 +117,13 @@ textarea { resize: vertical; min-height: 80px; }
       <button id="registerBtn" class="btn btn-outline" style="flex:1">Register</button>
     </div>
     <div id="authMsg"></div>
-    <p style="text-align:center;margin-top:15px;color:#6b7280;font-size:13px;">
-      For demo: Register new account or use existing credentials
-    </p>
   </div>
 </div>
 
 <!-- Main App -->
 <div id="app" class="hidden">
 
-<!-- Header & Logout -->
+<!-- Header -->
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
     <div>
@@ -140,17 +132,16 @@ textarea { resize: vertical; min-height: 80px; }
     <button id="logoutBtn" class="btn btn-danger">🚪 Logout</button>
   </div>
   
-  <!-- Live Location Status -->
   <div class="location-controls mt-10">
     <div class="location-status">
       <span class="dot" id="locationDot"></span>
-      <span id="locationStatusText">Location: Not available</span>
+      <span id="locationStatusText">Location: Checking...</span>
     </div>
     <button id="refreshLocationBtn" class="btn btn-secondary" style="padding:8px 15px;font-size:13px;">🔄 Refresh</button>
   </div>
 </div>
 
-<!-- Add/Update Delivery Card -->
+<!-- Add/Update Delivery -->
 <div class="card">
   <h3>📦 Add / Update Delivery</h3>
   
@@ -179,12 +170,13 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
   
   <div class="form-group">
-    <label>Pickup Location</label>
+    <label>📍 Pickup Location (Click map or use button)</label>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <input type="text" id="pickupLat" placeholder="Latitude" style="flex:1;min-width:120px;" readonly>
       <input type="text" id="pickupLng" placeholder="Longitude" style="flex:1;min-width:120px;" readonly>
       <button id="getPickupLocationBtn" class="btn btn-secondary">📍 Get Current</button>
     </div>
+    <small style="color:#6b7280;">💡 Tip: Click on the map to select pickup location</small>
   </div>
   
   <div class="form-group">
@@ -200,45 +192,33 @@ textarea { resize: vertical; min-height: 80px; }
   <div id="saveMsg"></div>
 </div>
 
-<!-- Search Card -->
+<!-- Single Search -->
 <div class="card">
-  <h3>🔍 Search Delivery</h3>
+  <h3>🔍 Single Search</h3>
   <div style="display:flex;gap:10px;flex-wrap:wrap;">
-    <input type="tel" id="searchInput" placeholder="Enter mobile number to search" style="flex:1;min-width:200px;">
-    <button id="searchBtn" class="btn btn-primary">Search</button>
+    <input type="tel" id="singleSearchInput" placeholder="Enter mobile number" style="flex:1;min-width:200px;">
+    <button id="singleSearchBtn" class="btn btn-primary">Search</button>
   </div>
-  
-  <!-- Search Results Details -->
-  <div id="detailsPanel" class="details-panel">
-    <h4>📋 Delivery Details</h4>
-    <div class="detail-row">
-      <span class="detail-label">Mobile:</span>
-      <span class="detail-value" id="detailMobile">-</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-label">Address:</span>
-      <span class="detail-value" id="detailAddress">-</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-label">Status:</span>
-      <span class="detail-value" id="detailStatus">-</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-label">Note:</span>
-      <span class="detail-value" id="detailNote">-</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-label">Location:</span>
-      <span class="detail-value" id="detailLocation">-</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-label">Last Updated:</span>
-      <span class="detail-value" id="detailUpdated">-</span>
-    </div>
-  </div>
+  <div id="singleSearchResult"></div>
 </div>
 
-<!-- Map Card -->
+<!-- Multiple Search -->
+<div class="card">
+  <h3>📋 Multiple Search</h3>
+  <div class="form-group">
+    <label>Enter multiple mobile numbers (comma or space separated)</label>
+    <input type="text" id="multiSearchInput" placeholder="e.g., 01712345678, 01812345679, 01912345670">
+  </div>
+  <div class="btn-group">
+    <button id="multiSearchBtn" class="btn btn-primary">🔍 Search All</button>
+    <button id="clearSearchBtn" class="btn btn-secondary">Clear List</button>
+  </div>
+  
+  <div id="searchTags" class="search-tags hidden"></div>
+  <div id="multiSearchResults" class="results-list"></div>
+</div>
+
+<!-- Map -->
 <div class="card">
   <h3>🗺️ Live Map</h3>
   <div id="map"></div>
@@ -248,15 +228,13 @@ textarea { resize: vertical; min-height: 80px; }
 
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc, serverTimestamp } 
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where } 
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-// ==================== CONFIGURATION ====================
 const firebaseConfig = {
   apiKey: "AIzaSyA82YWF574aCnkYdwN0airAcFl-_M21sHM",
   authDomain: "delivery-map-pro.firebaseapp.com",
@@ -266,12 +244,11 @@ const firebaseConfig = {
   appId: "1:544868009171:web:005b3e95248eac940b8026"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ==================== DOM ELEMENTS ====================
+// DOM Elements
 const authCard = document.getElementById("authCard");
 const appDiv = document.getElementById("app");
 const loginEmail = document.getElementById("loginEmail");
@@ -281,7 +258,6 @@ const userEmail = document.getElementById("userEmail");
 const locationDot = document.getElementById("locationDot");
 const locationStatusText = document.getElementById("locationStatusText");
 
-// Form elements
 const mobileInput = document.getElementById("mobileInput");
 const addressInput = document.getElementById("addressInput");
 const statusSelect = document.getElementById("statusSelect");
@@ -290,43 +266,56 @@ const pickupLat = document.getElementById("pickupLat");
 const pickupLng = document.getElementById("pickupLng");
 const saveMsg = document.getElementById("saveMsg");
 
-// Search elements
-const searchInput = document.getElementById("searchInput");
-const detailsPanel = document.getElementById("detailsPanel");
-
-// Map variables
 let map;
 let userMarker = null;
+let pickupMarker = null;
 let deliveryMarkers = [];
 let watchId = null;
 let currentPosition = null;
 
-// ==================== MAP INITIALIZATION ====================
+// ==================== MAP ====================
 function initMap() {
-  if (map) {
-    map.remove();
-    map = null;
-  }
+  if (map) map.remove();
   
-  // Default view (Dhaka, Bangladesh)
   map = L.map('map').setView([23.8103, 90.4125], 12);
   
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+    attribution: '© OpenStreetMap'
   }).addTo(map);
   
-  // Request location permission and track
-  requestLocationPermission();
+  // Click on map to set pickup location
+  map.on('click', function(e) {
+    pickupLat.value = e.latlng.lat.toFixed(6);
+    pickupLng.value = e.latlng.lng.toFixed(6);
+    setPickupMarker(e.latlng.lat, e.latlng.lng);
+    saveMsg.innerHTML = '<div class="message info">📍 Pickup location set! Click again to change.</div>';
+  });
+  
+  requestLocation();
 }
 
-// ==================== LOCATION SERVICES ====================
-function requestLocationPermission() {
+function setPickupMarker(lat, lng) {
+  if (pickupMarker) map.removeLayer(pickupMarker);
+  
+  pickupMarker = L.marker([lat, lng], {
+    draggable: true
+  }).addTo(map).bindPopup("📍 Pickup Location").openPopup();
+  
+  pickupMarker.on('dragend', function(e) {
+    const pos = e.target.getLatLng();
+    pickupLat.value = pos.lat.toFixed(6);
+    pickupLng.value = pos.lng.toFixed(6);
+  });
+}
+
+// ==================== LOCATION ====================
+function requestLocation() {
   if (!navigator.geolocation) {
     updateLocationStatus(false, "Geolocation not supported");
     return;
   }
   
-  updateLocationStatus(false, "Requesting permission...");
+  updateLocationStatus(false, "Getting location...");
   
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -335,27 +324,22 @@ function requestLocationPermission() {
         lng: position.coords.longitude
       };
       updateUserMarker(currentPosition);
-      updateLocationStatus(true, "Live location active");
+      updateLocationStatus(true, "Location active");
+      startWatchLocation();
     },
     (error) => {
-      let msg = "Location unavailable";
-      if (error.code === 1) msg = "Permission denied";
+      let msg = "Location error";
+      if (error.code === 1) msg = "Permission denied - Please allow location";
       else if (error.code === 2) msg = "Position unavailable";
       else if (error.code === 3) msg = "Timeout";
       updateLocationStatus(false, msg);
     },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0
-    }
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
   );
 }
 
-function startLocationWatch() {
-  if (watchId) {
-    navigator.geolocation.clearWatch(watchId);
-  }
+function startWatchLocation() {
+  if (watchId) navigator.geolocation.clearWatch(watchId);
   
   watchId = navigator.geolocation.watchPosition(
     (position) => {
@@ -366,14 +350,8 @@ function startLocationWatch() {
       updateUserMarker(currentPosition);
       updateLocationStatus(true, "Live tracking active");
     },
-    (error) => {
-      console.error("Location watch error:", error);
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0
-    }
+    (error) => { console.log("Watch error:", error.message); },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
   );
 }
 
@@ -385,53 +363,43 @@ function updateUserMarker(pos) {
   } else {
     const userIcon = L.divIcon({
       html: '<div style="background:#4f46e5;width:20px;height:20px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>',
-      iconSize: [20, 20],
-      iconAnchor: [10, 10]
+      iconSize: [20, 20], iconAnchor: [10, 10]
     });
     
     userMarker = L.marker([pos.lat, pos.lng], { icon: userIcon })
       .addTo(map)
-      .bindPopup("<b>📍 Your Location</b><br>Current Position")
-      .openPopup();
+      .bindPopup("<b>📍 My Location</b>").openPopup();
   }
   
   map.setView([pos.lat, pos.lng], 14);
 }
 
 function updateLocationStatus(active, text) {
-  locationDot.classList.toggle('active', active);
+  locationDot.className = 'dot ' + (active ? 'active' : 'error');
   locationStatusText.textContent = text;
 }
 
-// ==================== AUTHENTICATION ====================
+// ==================== AUTH ====================
+let isFirstLoad = true;
+
 onAuthStateChanged(auth, (user) => {
+  if (isFirstLoad) {
+    isFirstLoad = false;
+    return;
+  }
+  
   if (user) {
     authCard.classList.add("hidden");
     appDiv.classList.remove("hidden");
     userEmail.textContent = user.email;
-    
-    // Initialize map after short delay
-    setTimeout(() => {
-      initMap();
-      startLocationWatch();
-    }, 300);
+    setTimeout(initMap, 300);
   } else {
     authCard.classList.remove("hidden");
     appDiv.classList.add("hidden");
     userEmail.textContent = "";
-    
-    if (map) {
-      map.remove();
-      map = null;
-    }
-    if (watchId) {
-      navigator.geolocation.clearWatch(watchId);
-      watchId = null;
-    }
   }
 });
 
-// Login
 document.getElementById("loginBtn").onclick = async () => {
   const email = loginEmail.value.trim();
   const password = loginPassword.value;
@@ -451,26 +419,25 @@ document.getElementById("loginBtn").onclick = async () => {
   } catch (error) {
     console.error("Login error:", error);
     let msg = error.message;
-    if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
-    else if (error.code === 'auth/user-not-found') msg = 'No account with this email';
-    else if (error.code === 'auth/wrong-password') msg = 'Incorrect password';
-    else if (error.code === 'auth/invalid-credential') msg = 'Invalid email or password';
+    if (error.code === 'auth/invalid-email') msg = 'Invalid email';
+    else if (error.code === 'auth/user-not-found') msg = 'User not found';
+    else if (error.code === 'auth/wrong-password') msg = 'Wrong password';
+    else if (error.code === 'auth/invalid-credential') msg = 'Invalid credentials';
     authMsg.innerHTML = `<div class="message error">${msg}</div>`;
   }
 };
 
-// Register
 document.getElementById("registerBtn").onclick = async () => {
   const email = loginEmail.value.trim();
   const password = loginPassword.value;
   
   if (!email || !password) {
-    authMsg.innerHTML = '<div class="message error">Please enter email and password</div>';
+    authMsg.innerHTML = '<div class="message error">Enter email and password</div>';
     return;
   }
   
   if (password.length < 6) {
-    authMsg.innerHTML = '<div class="message error">Password must be at least 6 characters</div>';
+    authMsg.innerHTML = '<div class="message error">Password must be 6+ characters</div>';
     return;
   }
   
@@ -478,45 +445,38 @@ document.getElementById("registerBtn").onclick = async () => {
   
   try {
     await createUserWithEmailAndPassword(auth, email, password);
-    authMsg.innerHTML = '<div class="message success">✓ Account created! You are now logged in.</div>';
+    authMsg.innerHTML = '<div class="message success">✓ Account created!</div>';
     loginEmail.value = '';
     loginPassword.value = '';
   } catch (error) {
     console.error("Register error:", error);
     let msg = error.message;
-    if (error.code === 'auth/email-already-in-use') msg = 'An account with this email already exists';
-    else if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
-    else if (error.code === 'auth/weak-password') msg = 'Password is too weak';
+    if (error.code === 'auth/email-already-in-use') msg = 'Email already exists';
+    else if (error.code === 'auth/invalid-email') msg = 'Invalid email';
     authMsg.innerHTML = `<div class="message error">${msg}</div>`;
   }
 };
 
-// Logout
 document.getElementById("logoutBtn").onclick = async () => {
   try {
     await signOut(auth);
-  } catch (error) {
-    console.error("Logout error:", error);
-  }
+  } catch (e) { console.error(e); }
 };
 
-// Refresh Location
-document.getElementById("refreshLocationBtn").onclick = () => {
-  requestLocationPermission();
-};
+document.getElementById("refreshLocationBtn").onclick = requestLocation;
 
-// Get Pickup Location
 document.getElementById("getPickupLocationBtn").onclick = () => {
   if (currentPosition) {
     pickupLat.value = currentPosition.lat.toFixed(6);
     pickupLng.value = currentPosition.lng.toFixed(6);
-    saveMsg.innerHTML = '<div class="message success">Pickup location captured!</div>';
+    setPickupMarker(currentPosition.lat, currentPosition.lng);
+    saveMsg.innerHTML = '<div class="message success">Current location set!</div>';
   } else {
-    saveMsg.innerHTML = '<div class="message error">Location not available. Please wait or refresh.</div>';
+    saveMsg.innerHTML = '<div class="message error">Location not available. Please allow location permission.</div>';
   }
 };
 
-// ==================== SAVE / UPDATE DELIVERY ====================
+// ==================== SAVE ====================
 document.getElementById("saveBtn").onclick = async () => {
   const mobile = mobileInput.value.trim();
   const address = addressInput.value.trim();
@@ -525,61 +485,37 @@ document.getElementById("saveBtn").onclick = async () => {
   const lat = pickupLat.value ? parseFloat(pickupLat.value) : null;
   const lng = pickupLng.value ? parseFloat(pickupLng.value) : null;
   
-  // Validation
   if (!mobile) {
-    saveMsg.innerHTML = '<div class="message error">Mobile number is required!</div>';
-    mobileInput.focus();
+    saveMsg.innerHTML = '<div class="message error">Mobile number required!</div>';
     return;
   }
   
   if (!address) {
-    saveMsg.innerHTML = '<div class="message error">Address is required!</div>';
-    addressInput.focus();
-    return;
-  }
-  
-  if (!/^\d{8,15}$/.test(mobile.replace(/\D/g, ''))) {
-    saveMsg.innerHTML = '<div class="message error">Please enter a valid mobile number</div>';
+    saveMsg.innerHTML = '<div class="message error">Address required!</div>';
     return;
   }
   
   saveMsg.innerHTML = '<div class="message info">Saving...</div>';
   
   try {
-    const deliveryData = {
-      address: address,
-      status: status,
-      note: note,
-      lat: lat,
-      lng: lng,
+    await setDoc(doc(db, "deliveries", mobile), {
+      address, status, note, lat, lng,
       uid: auth.currentUser.uid,
       updatedAt: Date.now()
-    };
+    });
     
-    await setDoc(doc(db, "deliveries", mobile), deliveryData);
+    saveMsg.innerHTML = '<div class="message success">✓ Saved: ' + mobile + '</div>';
     
-    saveMsg.innerHTML = '<div class="message success">✓ Saved Successfully! Delivery: ' + mobile + '</div>';
-    
-    // Add marker to map
     if (lat && lng) {
-      addDeliveryMarker(lat, lng, address, status, mobile);
+      showDeliveryOnMap(lat, lng, address, status);
     }
     
-    // Clear form after successful save
-    setTimeout(() => {
-      clearForm();
-    }, 2000);
-    
   } catch (error) {
-    console.error("Save error:", error);
     saveMsg.innerHTML = '<div class="message error">Error: ' + error.message + '</div>';
   }
 };
 
-// Clear Form
-document.getElementById("clearFormBtn").onclick = clearForm;
-
-function clearForm() {
+document.getElementById("clearFormBtn").onclick = () => {
   mobileInput.value = '';
   addressInput.value = '';
   statusSelect.value = 'Pending';
@@ -587,107 +523,200 @@ function clearForm() {
   pickupLat.value = '';
   pickupLng.value = '';
   saveMsg.innerHTML = '';
-}
-
-// ==================== DELETE DELIVERY ====================
-document.getElementById("deleteBtn").onclick = async () => {
-  const mobile = mobileInput.value.trim();
-  
-  if (!mobile) {
-    saveMsg.innerHTML = '<div class="message error">Enter mobile number to delete</div>';
-    return;
-  }
-  
-  if (!confirm('Are you sure you want to delete delivery: ' + mobile + '?')) {
-    return;
-  }
-  
-  try {
-    await deleteDoc(doc(db, "deliveries", mobile));
-    saveMsg.innerHTML = '<div class="message success">✓ Deleted successfully!</div>';
-    clearForm();
-    detailsPanel.classList.remove('show');
-  } catch (error) {
-    console.error("Delete error:", error);
-    saveMsg.innerHTML = '<div class="message error">Error: ' + error.message + '</div>';
+  if (pickupMarker) {
+    map.removeLayer(pickupMarker);
+    pickupMarker = null;
   }
 };
 
-// ==================== SEARCH DELIVERY ====================
-document.getElementById("searchBtn").onclick = async () => {
-  const searchMobile = searchInput.value.trim();
+document.getElementById("deleteBtn").onclick = async () => {
+  const mobile = mobileInput.value.trim();
+  if (!mobile) {
+    saveMsg.innerHTML = '<div class="message error">Enter mobile to delete</div>';
+    return;
+  }
+  if (!confirm('Delete ' + mobile + '?')) return;
   
-  if (!searchMobile) {
-    alert('Please enter a mobile number to search');
+  try {
+    await deleteDoc(doc(db, "deliveries", mobile));
+    saveMsg.innerHTML = '<div class="message success">Deleted!</div>';
+    document.getElementById("clearFormBtn").click();
+  } catch (e) {
+    saveMsg.innerHTML = '<div class="message error">Error: ' + e.message + '</div>';
+  }
+};
+
+// ==================== SINGLE SEARCH ====================
+document.getElementById("singleSearchBtn").onclick = async () => {
+  const mobile = document.getElementById("singleSearchInput").value.trim();
+  const resultDiv = document.getElementById("singleSearchResult");
+  
+  if (!mobile) {
+    resultDiv.innerHTML = '<div class="message error">Enter mobile number</div>';
     return;
   }
   
   try {
-    const snap = await getDoc(doc(db, "deliveries", searchMobile));
+    const snap = await getDoc(doc(db, "deliveries", mobile));
     
     if (!snap.exists()) {
-      alert('No delivery found with this number: ' + searchMobile);
-      detailsPanel.classList.remove('show');
+      resultDiv.innerHTML = '<div class="message warning">⚠️ Not found: ' + mobile + '</div>';
       return;
     }
     
     const d = snap.data();
     
     // Fill form
-    mobileInput.value = searchMobile;
+    mobileInput.value = mobile;
     addressInput.value = d.address || '';
     statusSelect.value = d.status || 'Pending';
     noteInput.value = d.note || '';
     pickupLat.value = d.lat || '';
     pickupLng.value = d.lng || '';
     
-    // Show details panel
-    document.getElementById('detailMobile').textContent = searchMobile;
-    document.getElementById('detailAddress').textContent = d.address || '-';
+    let statusClass = 'status-' + (d.status || 'pending').toLowerCase();
     
-    const statusClass = 'status-' + (d.status || 'pending').toLowerCase();
-    document.getElementById('detailStatus').innerHTML = 
-      `<span class="status-badge ${statusClass}">${d.status || 'Pending'}</span>`;
+    resultDiv.innerHTML = `
+      <div class="message success">
+        <strong>✓ Found: ${mobile}</strong><br>
+        📍 ${d.address}<br>
+        📊 Status: <span class="status-badge ${statusClass}">${d.status}</span><br>
+        📝 ${d.note || 'No notes'}
+      </div>
+    `;
     
-    document.getElementById('detailNote').textContent = d.note || '-';
-    document.getElementById('detailLocation').textContent = 
-      d.lat && d.lng ? `${d.lat.toFixed(6)}, ${d.lng.toFixed(6)}` : 'Not set';
-    document.getElementById('detailUpdated').textContent = 
-      d.updatedAt ? new Date(d.updatedAt).toLocaleString() : '-';
-    
-    detailsPanel.classList.add('show');
-    
-    // Show on map
     if (d.lat && d.lng) {
-      showOnMap(d.lat, d.lng, d.address, d.status);
+      showDeliveryOnMap(d.lat, d.lng, d.address, d.status);
     }
     
-  } catch (error) {
-    console.error("Search error:", error);
-    alert('Error searching: ' + error.message);
+  } catch (e) {
+    resultDiv.innerHTML = '<div class="message error">Error: ' + e.message + '</div>';
   }
 };
 
-// Show delivery on map
-function showOnMap(lat, lng, address, status) {
+// ==================== MULTIPLE SEARCH ====================
+let searchList = [];
+
+document.getElementById("multiSearchBtn").onclick = async () => {
+  const input = document.getElementById("multiSearchInput").value.trim();
+  const resultsDiv = document.getElementById("multiSearchResults");
+  const tagsDiv = document.getElementById("searchTags");
+  
+  if (!input) {
+    resultsDiv.innerHTML = '<div class="message error">Enter mobile numbers</div>';
+    return;
+  }
+  
+  // Parse numbers
+  const numbers = input.split(/[\s,]+/).filter(n => n.length > 0);
+  searchList = [...new Set(numbers)]; // Remove duplicates
+  
+  if (searchList.length === 0) return;
+  
+  // Show tags
+  tagsDiv.classList.remove('hidden');
+  tagsDiv.innerHTML = searchList.map(n => 
+    `<span class="search-tag" data-mobile="${n}">${n} <span class="remove" onclick="removeSearchTag('${n}')">×</span></span>`
+  ).join('');
+  
+  resultsDiv.innerHTML = '<div class="message info">Searching ' + searchList.length + ' numbers...</div>';
+  
+  let found = [];
+  let notFound = [];
+  
+  for (let mobile of searchList) {
+    try {
+      const snap = await getDoc(doc(db, "deliveries", mobile));
+      
+      if (snap.exists()) {
+        found.push({ mobile, data: snap.data() });
+      } else {
+        notFound.push(mobile);
+      }
+    } catch (e) {
+      notFound.push(mobile);
+    }
+  }
+  
+  // Update tags for not found
+  notFound.forEach(n => {
+    const tag = document.querySelector(`.search-tag[data-mobile="${n}"]`);
+    if (tag) tag.classList.add('not-found');
+  });
+  
+  // Show results
+  let html = '';
+  
+  if (notFound.length > 0) {
+    html += `<div class="message warning">⚠️ Not Found (${notFound.length}): ${notFound.join(', ')}</div>`;
+  }
+  
+  if (found.length > 0) {
+    html += `<div class="message success">✓ Found (${found.length}):</div>`;
+    
+    found.forEach(item => {
+      const d = item.data;
+      const statusClass = 'status-' + (d.status || 'pending').toLowerCase();
+      
+      html += `
+        <div class="result-item" onclick="loadDelivery('${item.mobile}')">
+          <div class="header">
+            <span class="mobile">📱 ${item.mobile}</span>
+            <span class="status-badge ${statusClass}">${d.status}</span>
+          </div>
+          <div class="address">📍 ${d.address}</div>
+          <div class="meta">📝 ${d.note || 'No notes'} | 📍 ${d.lat ? d.lat.toFixed(4) + ',' + d.lng.toFixed(4) : 'No location'}</div>
+        </div>
+      `;
+    });
+    
+    // Show first found on map
+    if (found[0].data.lat && found[0].data.lng) {
+      showDeliveryOnMap(found[0].data.lat, found[0].data.lng, found[0].data.address, found[0].data.status);
+    }
+  } else if (notFound.length === searchList.length) {
+    html += '<div class="message error">No deliveries found!</div>';
+  }
+  
+  resultsDiv.innerHTML = html;
+};
+
+document.getElementById("clearSearchBtn").onclick = () => {
+  document.getElementById("multiSearchInput").value = '';
+  document.getElementById("searchTags").innerHTML = '';
+  document.getElementById("searchTags").classList.add('hidden');
+  document.getElementById("multiSearchResults").innerHTML = '';
+  searchList = [];
+};
+
+window.removeSearchTag = function(mobile) {
+  searchList = searchList.filter(n => n !== mobile);
+  document.getElementById("searchTags").innerHTML = searchList.map(n => 
+    `<span class="search-tag" data-mobile="${n}">${n} <span class="remove" onclick="removeSearchTag('${n}')">×</span></span>`
+  ).join('');
+};
+
+window.loadDelivery = function(mobile) {
+  document.getElementById("singleSearchInput").value = mobile;
+  document.getElementById("singleSearchBtn").click();
+};
+
+function showDeliveryOnMap(lat, lng, address, status) {
   if (!map) return;
   
-  // Clear existing delivery markers
   deliveryMarkers.forEach(m => map.removeLayer(m));
   deliveryMarkers = [];
   
-  let color = '#6b7280';
+  let color = '#f59e0b';
   if (status === 'Delivered') color = '#10b981';
   else if (status === 'Returned') color = '#ef4444';
-  else color = '#f59e0b';
   
-  const deliveryIcon = L.divIcon({
-    html: `<div style="background:${color};width:24px;height:24px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;">📦</div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12]
+  const icon = L.divIcon({
+    html: `<div style="background:${color};width:28px;height:28px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">📦</div>`,
+    iconSize: [28, 28], iconAnchor: [14, 14]
   });
   
-  const marker = L.marker([lat, lng], { icon: deliveryIcon })
+  const marker = L.marker([lat, lng], { icon: icon })
     .addTo(map)
     .bindPopup(`<b>${status}</b><br>${address}`)
     .openPopup();
@@ -696,27 +725,17 @@ function showOnMap(lat, lng, address, status) {
   map.setView([lat, lng], 16);
 }
 
-// Add delivery marker
-function addDeliveryMarker(lat, lng, address, status, mobile) {
-  if (!map) return;
-  
-  showOnMap(lat, lng, address, status);
-}
-
-// Allow Enter key to search
-searchInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    document.getElementById('searchBtn').click();
-  }
+// Enter key handlers
+document.getElementById("singleSearchInput").addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') document.getElementById("singleSearchBtn").click();
 });
 
-// Allow Enter key to login
 loginPassword.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    document.getElementById('loginBtn').click();
-  }
+  if (e.key === 'Enter') document.getElementById("loginBtn").click();
 });
 
+// Delete import for deleteDoc (was missing)
+import { deleteDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 </script>
 </body>
 </html>
