@@ -10,18 +10,16 @@
 
 <style>
 body{margin:0;font-family:Segoe UI;background:#f4f6fb;}
-.topbar{background:#0f172a;color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;}
+.topbar{background:#111;color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;}
 .container{max-width:1100px;margin:auto;padding:20px;}
 .card{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 4px 15px rgba(0,0,0,0.08);}
 input,select{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:8px;font-size:14px;}
-button{padding:10px 15px;border:none;border-radius:8px;background:#0f172a;color:#fff;cursor:pointer;}
-button:hover{background:#1e293b;}
+button{padding:10px 15px;border:none;border-radius:8px;background:#111;color:#fff;cursor:pointer;}
+button:hover{background:#333;}
 #map{height:450px;border-radius:12px;}
 .success{color:green;font-weight:600;}
 .error{color:red;font-weight:600;}
 .hidden{display:none;}
-.flex{display:flex;gap:10px;flex-wrap:wrap;}
-.flex button{flex:1;}
 .detailsBox{background:#eef2ff;padding:15px;border-radius:10px;margin-top:10px;}
 </style>
 </head>
@@ -31,41 +29,32 @@ button:hover{background:#1e293b;}
 
 <div class="container">
 
-<div id="authBox" class="card">
-<h3>Login</h3>
-<input type="email" id="email" placeholder="Email" value="streetfast@gmail.com">
-<input type="password" id="password" placeholder="Password" value="Street@123">
-<div class="flex">
-<button id="loginBtn">Login</button>
-<button id="registerBtn">Register</button>
-</div>
-<div id="authMsg"></div>
-</div>
-
-<div id="app" class="hidden">
+<div id="app">
 
 <div class="card">
-<button id="logoutBtn">Logout</button>
 <h3>Add / Update Delivery</h3>
-<input type="text" id="mobile">
-<input type="text" id="address">
-<select id="status">
-<option>Pending</option>
-<option>Delivered</option>
-<option>Returned</option>
+
+<input type="text" id="mobileField" placeholder="Mobile Number">
+<input type="text" id="addressField" placeholder="Full Address">
+
+<select id="statusField">
+<option value="Pending">Pending</option>
+<option value="Delivered">Delivered</option>
+<option value="Returned">Returned</option>
 </select>
-<input type="text" id="note">
-<div class="flex">
+
+<input type="text" id="noteField" placeholder="Note">
+
 <button id="saveBtn">Save / Update</button>
 <button id="deleteBtn">Delete</button>
-</div>
+
 <div id="saveMsg"></div>
 <p><b>Click map to select pickup/delivery location</b></p>
 </div>
 
 <div class="card">
 <h3>Search Delivery</h3>
-<input type="text" id="searchMobile">
+<input type="text" id="searchField">
 <button id="searchBtn">Search</button>
 <div id="details"></div>
 </div>
@@ -78,8 +67,6 @@ button:hover{background:#1e293b;}
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc }
 from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
@@ -93,111 +80,91 @@ appId: "1:544868009171:web:005b3e95248eac940b8026"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-let map;
-let userMarker;
-let deliveryMarker;
-let selectedLat=null;
-let selectedLng=null;
-
-function initMap(){
-map=L.map('map').setView([23.8103,90.4125],13);
+let map = L.map('map').setView([23.8103,90.4125],13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-navigator.geolocation.watchPosition(pos=>{
-let lat=pos.coords.latitude;
-let lng=pos.coords.longitude;
+let selectedLat = null;
+let selectedLng = null;
+let deliveryMarker;
 
-if(userMarker) map.removeLayer(userMarker);
-userMarker=L.marker([lat,lng]).addTo(map)
+navigator.geolocation.watchPosition(pos=>{
+let lat = pos.coords.latitude;
+let lng = pos.coords.longitude;
+
+L.marker([lat,lng]).addTo(map)
 .bindPopup("📍 Your Live Location");
-map.setView([lat,lng],15);
+
+map.setView([lat,lng],14);
 
 },{enableHighAccuracy:true});
 
 map.on("click",e=>{
-selectedLat=e.latlng.lat;
-selectedLng=e.latlng.lng;
+selectedLat = e.latlng.lat;
+selectedLng = e.latlng.lng;
 
 if(deliveryMarker) map.removeLayer(deliveryMarker);
-deliveryMarker=L.marker([selectedLat,selectedLng]).addTo(map)
-.bindPopup("📦 Pickup/Delivery Location").openPopup();
-});
-}
 
-onAuthStateChanged(auth,user=>{
-if(user){
-document.getElementById("authBox").classList.add("hidden");
-document.getElementById("app").classList.remove("hidden");
-setTimeout(initMap,300);
-}else{
-document.getElementById("authBox").classList.remove("hidden");
-document.getElementById("app").classList.add("hidden");
-}
+deliveryMarker = L.marker([selectedLat,selectedLng])
+.addTo(map)
+.bindPopup("📦 Selected Location")
+.openPopup();
 });
 
-loginBtn.onclick=async()=>{
-try{
-await signInWithEmailAndPassword(auth,email.value,password.value);
-authMsg.innerHTML="<div class='success'>Login Successful</div>";
-}catch(e){
-authMsg.innerHTML="<div class='error'>"+e.message+"</div>";
-}
-};
+document.getElementById("saveBtn").onclick = async ()=>{
+const mobile = document.getElementById("mobileField").value.trim();
+const address = document.getElementById("addressField").value.trim();
+const statusValue = document.getElementById("statusField").value;
+const note = document.getElementById("noteField").value.trim();
 
-registerBtn.onclick=async()=>{
-try{
-await createUserWithEmailAndPassword(auth,email.value,password.value);
-authMsg.innerHTML="<div class='success'>Registered Successfully</div>";
-}catch(e){
-authMsg.innerHTML="<div class='error'>"+e.message+"</div>";
-}
-};
-
-logoutBtn.onclick=()=>signOut(auth);
-
-saveBtn.onclick=async()=>{
-try{
-if(!mobile.value||!address.value||selectedLat===null){
-saveMsg.innerHTML="<div class='error'>Fill all & select location</div>";
+if(!mobile || !address || selectedLat===null){
+document.getElementById("saveMsg").innerHTML="<div class='error'>Fill all fields & select location</div>";
 return;
 }
-await setDoc(doc(db,"deliveries",mobile.value),{
-address:address.value,
-status:status.value,
-note:note.value,
-lat:selectedLat,
-lng:selectedLng,
-uid:auth.currentUser.uid,
-updatedAt:Date.now()
+
+try{
+await setDoc(doc(db,"deliveries",mobile),{
+address: address,
+status: statusValue,
+note: note,
+lat: selectedLat,
+lng: selectedLng,
+updatedAt: Date.now()
 });
-saveMsg.innerHTML="<div class='success'>Saved Successfully ✅</div>";
+document.getElementById("saveMsg").innerHTML="<div class='success'>Saved Successfully ✅</div>";
 }catch(e){
-saveMsg.innerHTML="<div class='error'>"+e.message+"</div>";
+document.getElementById("saveMsg").innerHTML="<div class='error'>"+e.message+"</div>";
 }
 };
 
-deleteBtn.onclick=async()=>{
-await deleteDoc(doc(db,"deliveries",mobile.value));
-saveMsg.innerHTML="<div class='success'>Deleted</div>";
+document.getElementById("deleteBtn").onclick = async ()=>{
+const mobile = document.getElementById("mobileField").value.trim();
+if(!mobile) return;
+await deleteDoc(doc(db,"deliveries",mobile));
+document.getElementById("saveMsg").innerHTML="<div class='success'>Deleted</div>";
 };
 
-searchBtn.onclick=async()=>{
-let snap=await getDoc(doc(db,"deliveries",searchMobile.value));
-if(!snap.exists()){details.innerHTML="<div class='error'>Not Found</div>";return;}
-let d=snap.data();
+document.getElementById("searchBtn").onclick = async ()=>{
+const mobile = document.getElementById("searchField").value.trim();
+let snap = await getDoc(doc(db,"deliveries",mobile));
+if(!snap.exists()){
+document.getElementById("details").innerHTML="<div class='error'>Not Found</div>";
+return;
+}
+let d = snap.data();
 
 if(deliveryMarker) map.removeLayer(deliveryMarker);
-deliveryMarker=L.marker([d.lat,d.lng]).addTo(map)
-.bindPopup("📦 Delivery Location").openPopup();
+deliveryMarker = L.marker([d.lat,d.lng])
+.addTo(map)
+.bindPopup("📦 Delivery Location")
+.openPopup();
 
 map.setView([d.lat,d.lng],15);
 
-details.innerHTML=`
+document.getElementById("details").innerHTML=`
 <div class="detailsBox">
-<b>Mobile:</b> ${searchMobile.value}<br>
+<b>Mobile:</b> ${mobile}<br>
 <b>Address:</b> ${d.address}<br>
 <b>Status:</b> ${d.status}<br>
 <b>Note:</b> ${d.note}<br>
